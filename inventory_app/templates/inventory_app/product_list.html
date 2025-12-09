@@ -1,0 +1,58 @@
+{% extends 'inventory_app/base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between mb-3 align-items-center">
+    <h2>Products</h2>
+    {% if user.is_superuser %}
+    <div>
+        <a class="btn btn-success" href="{% url 'inventory_app:product_create' %}">Add Product</a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Search Bar -->
+<div class="card p-3 mb-4 bg-light border-0">
+    <form method="get" class="row g-2">
+        <div class="col-md-10">
+            <input type="text" name="q" class="form-control" placeholder="Search by Name or SKU..."
+                value="{{ search_query }}">
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">Search</button>
+        </div>
+    </form>
+</div>
+
+<table class="table table-hover shadow-sm">
+    <thead class="table-light">
+        <tr>
+            <th>Name</th>
+            <th>SKU</th>
+            <th>Price</th>
+            <th>Qty</th>
+            {% if user.is_superuser %}
+            <th>Actions</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in products %}
+        <tr class="{% if p.quantity <= p.low_stock_threshold %}table-warning{% endif %}">
+            <td>{{ p.name }}</td>
+            <td>{{ p.sku }}</td>
+            <td>₹{{ p.price }}</td>
+            <td>{{ p.quantity }}</td>
+            {% if user.is_superuser %}
+            <td>
+                <a class="btn btn-sm btn-primary" href="#">Edit</a>
+                <a class="btn btn-sm btn-danger" href="#">Delete</a>
+            </td>
+            {% endif %}
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" class="text-center p-4">No products found matching your search.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

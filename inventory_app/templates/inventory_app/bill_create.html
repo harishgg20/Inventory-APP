@@ -1,0 +1,203 @@
+{% extends 'inventory_app/base.html' %}
+{% block content %}
+<h2>Create Bill (POS Mode)</h2>
+
+<div class="row">
+    <!-- Left: Product Selection -->
+    <div class="col-md-5">
+        <div class="card p-4 mb-4">
+            <h5 class="card-title">Add Items</h5>
+            <div class="mb-3">
+                <label class="form-label">Search Product</label>
+                <select id="productSelect" class="form-select">
+                    <option value="">-- Select Product --</option>
+                    <!-- Populated by JS -->
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Quantity</label>
+                <input type="number" id="qtyInput" class="form-control" value="1" min="1">
+            </div>
+            <button class="btn btn-success w-100" onclick="addToCart()">Add to Bill ➕</button>
+        </div>
+
+        <div class="card p-3 bg-light">
+            <small class="text-muted">Selected Product Info:</small>
+            <div id="productInfo" class="fw-bold mt-1">-</div>
+        </div>
+
+        <div class="card p-4 mt-3">
+            <h5 class="card-title">Customer Details</h5>
+            <div class="mb-3">
+                <label class="form-label">Email (Optional)</label>
+                <input type="email" id="customerEmail" class="form-control" placeholder="customer@example.com">
+                <small class="text-muted">Receipt will be sent here automatically.</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: Bill Items -->
+    <div class="col-md-7">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white d-flex justify-content-between">
+                <span>Current Bill</span>
+                <span id="itemsCount">0 Items</span>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th class="text-end">Qty</th>
+                            <th class="text-end">Price</th>
+                            <th class="text-end">Total</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="cartTableBody">
+                        <!-- JS Items -->
+                    </tbody>
+                    <tfoot class="table-dark">
+                        <tr>
+                            <td colspan="3" class="text-end">Grand Total:</td>
+                            <td class="text-end" id="grandTotal">₹0.00</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="card-footer p-3">
+                <button class="btn btn-primary w-100 btn-lg" onclick="submitBill()">
+                    Generate Bill & Checkout ✅
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Data passed from View -->
+<script>
+    const products = {{ products_json| safe }};
+    let cart = [];
+
+    // Init Logic
+    document.addEventListener('DOMContentLoaded', () => {
+        const select = document.getElementById('productSelect');
+        products.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p.id;
+            opt.text = `${p.name} (₹${p.price})`;
+            select.appendChild(opt);
+        });
+
+        select.addEventListener('change', updateInfo);
+    });
+
+    function updateInfo() {
+        const pid = document.getElementById('productSelect').value;
+        const p = products.find(prod => prod.id == pid);
+        const info = document.getElementById('productInfo');
+        if (p) {
+            info.innerHTML = `${p.name} <br> SKU: ${p.sku} <br> Stock: ${p.stock}`;
+            info.className = p.stock < 5 ? 'fw-bold mt-1 text-danger' : 'fw-bold mt-1 text-success';
+        } else {
+            info.innerText = '-';
+        }
+    }
+
+    function addToCart() {
+        const pid = document.getElementById('productSelect').value;
+        const qty = parseInt(document.getElementById('qtyInput').value);
+
+        if (!pid || qty < 1) {
+            alert("Please select a product and valid quantity");
+            return;
+        }
+
+        const p = products.find(prod => prod.id == pid);
+
+        // Simple stock check
+        if (qty > p.stock) {
+            alert(`Insufficient stock! Only ${p.stock} available.`);
+            return;
+        }
+
+        // Check if already in cart
+        const existing = cart.find(item => item.id == pid);
+        if (existing) {
+            if (existing.qty + qty > p.stock) {
+                alert("Cannot add more than available stock.");
+                return;
+            }
+            existing.qty += qty;
+        } else {
+            cart.push({ ...p, qty: qty });
+        }
+
+        renderCart();
+    }
+
+    function removeFromCart(pid) {
+        cart = cart.filter(item => item.id != pid);
+        renderCart();
+    }
+
+    function renderCart() {
+        const tbody = document.getElementById('cartTableBody');
+        tbody.innerHTML = '';
+        let total = 0;
+        let count = 0;
+
+        cart.forEach(item => {
+            const itemTotal = item.price * item.qty;
+            total += itemTotal;
+            count += item.qty;
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${item.name}</td>
+                <td class="text-end">${item.qty}</td>
+                <td class="text-end">₹${item.price}</td>
+                <td class="text-end">₹${itemTotal.toFixed(2)}</td>
+                <td class="text-end"><button class="btn btn-sm btn-outline-danger" onclick="removeFromCart(${item.id})">x</button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        document.getElementById('grandTotal').innerText = `₹${total.toFixed(2)}`;
+        document.getElementById('itemsCount').innerText = `${count} Items`;
+    }
+
+    function submitBill() {
+        if (cart.length === 0) {
+            alert("Cart is empty!");
+            return;
+        }
+
+        if (!confirm(`Generate bill for ₹${document.getElementById('grandTotal').innerText}?`)) return;
+
+        const data = {
+            items: cart.map(i => ({ id: i.id, qty: i.qty })),
+            customer_email: document.getElementById('customerEmail').value
+        };
+
+        fetch('{% url "inventory_app:bill_create" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = `/bills/${data.bill_id}/`;
+                } else {
+                    alert("Error: " + data.error);
+                }
+            })
+            .catch(err => alert("Request failed: " + err));
+    }
+</script>
+{% endblock %}

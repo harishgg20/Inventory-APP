@@ -1,0 +1,93 @@
+{% extends 'inventory_app/base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-4 no-print">
+    <a href="{% url 'inventory_app:bill_list' %}" class="btn btn-secondary">&larr; Back to History</a>
+    <div>
+        <a href="{% url 'inventory_app:bill_pdf' bill.id %}?download=True" class="btn btn-primary me-2">⬇️ Download
+            PDF</a>
+        <button onclick="window.print()" class="btn btn-success">🖨 Print Invoice</button>
+    </div>
+</div>
+
+<div class="card p-5 shadow-lg" id="invoice-card">
+    <div class="row mb-5">
+        <div class="col-6">
+            <h1 class="text-primary fw-bold">INVOICE</h1>
+            <p class="text-muted">#INV-{{ bill.id|stringformat:"05d" }}</p>
+        </div>
+        <div class="col-6 text-end">
+            <h4>Inventory Corp.</h4>
+            <p>123 Business Rd<br>Tech City, TC 90210</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-6">
+            <p class="mb-1"><strong>Bill To:</strong></p>
+            <p>Walk-in Customer</p>
+        </div>
+        <div class="col-6 text-end">
+            <p class="mb-1"><strong>Date:</strong></p>
+            <p>{{ bill.created_at|date:"F d, Y" }}</p>
+        </div>
+    </div>
+
+    <table class="table table-bordered">
+        <thead class="bg-light">
+            <tr>
+                <th>Item</th>
+                <th class="text-end">Qty</th>
+                <th class="text-end">Price</th>
+                <th class="text-end">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in bill.items.all %}
+            <tr>
+                <td>{{ item.product.name }} <span class="text-muted text-small">({{ item.product.sku }})</span></td>
+                <td class="text-end">{{ item.quantity }}</td>
+                <td class="text-end">₹{{ item.price }}</td>
+                <td class="text-end">₹{% widthratio item.price 1 item.quantity %}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot class="fw-bold">
+            <tr>
+                <td colspan="3" class="text-end">Grand Total</td>
+                <td class="text-end bg-light">₹{{ bill.total }}</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="mt-5 text-center text-muted">
+        <p>Thank you for your business!</p>
+    </div>
+</div>
+
+<style>
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+
+        body {
+            background: white;
+        }
+
+        #invoice-card {
+            box-shadow: none !important;
+            border: none;
+        }
+
+        nav {
+            display: none !important;
+        }
+
+        .container {
+            max-width: 100%;
+            padding: 0;
+        }
+    }
+</style>
+{% endblock %}

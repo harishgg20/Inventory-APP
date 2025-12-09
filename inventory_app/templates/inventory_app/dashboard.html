@@ -1,0 +1,149 @@
+{% extends 'inventory_app/base.html' %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2 class="mb-3">Dashboard</h2>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card bg-primary text-white p-3 shadow-sm">
+            <h3>{{ stats.total_products }}</h3>
+            <span>Total Products</span>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-danger text-white p-3 shadow-sm">
+            <h3>{{ stats.low_stock }}</h3>
+            <span>Low Stock Alerts</span>
+        </div>
+    </div>
+    <div class="col-md-4">
+        {% if is_admin %}
+        <div class="card bg-success text-white p-3 shadow-sm">
+            <h3>₹{{ stats.total_value }}</h3>
+            <span>Inventory Value</span>
+        </div>
+        {% else %}
+        <div class="card bg-secondary text-white p-3 shadow-sm">
+            <h3>Restricted</h3>
+            <span>Inventory Value</span>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm p-3">
+            <h5 class="card-title">Stock Levels (Top 5)</h5>
+            <canvas id="stockChart"></canvas>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm p-3">
+            <h5 class="card-title">Inventory Value Distribution</h5>
+            <canvas id="valueChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Quick Actions -->
+    <div class="col-md-4">
+        <div class="card p-3 mb-4 shadow-sm">
+            <h5>Quick Actions</h5>
+            <div class="d-grid gap-2 mt-2">
+                <a href="{% url 'inventory_app:bill_create' %}" class="btn btn-primary">Create New Bill</a>
+                <a href="{% url 'inventory_app:product_create' %}" class="btn btn-outline-success">Add New Product</a>
+                <a href="{% url 'inventory_app:product_list' %}" class="btn btn-outline-secondary">Manage Inventory</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Recent Bills</h5>
+            </div>
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Date</th>
+                        <th>Total</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bill in recent_bills %}
+                    <tr>
+                        <td>#{{ bill.id }}</td>
+                        <td>{{ bill.created_at|date:"M d" }}</td>
+                        <td>₹{{ bill.total }}</td>
+                        <td><a href="{% url 'inventory_app:bill_detail' bill.id %}"
+                                class="btn btn-sm btn-light">View</a></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4">No recent activity.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctxStock = document.getElementById('stockChart').getContext('2d');
+    const ctxValue = document.getElementById('valueChart').getContext('2d');
+
+    // Data passed from Django View
+    const chartLabels = {{ chart_labels| safe }};
+    const chartStock = {{ chart_stock| safe }};
+    const chartValue = {{ chart_value| safe }};
+
+    new Chart(ctxStock, {
+        type: 'bar',
+        data: {
+            labels: chartLabels,
+            datasets: [{
+                label: 'Stock Quantity',
+                data: chartStock,
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: { responsive: true }
+    });
+
+    new Chart(ctxValue, {
+        type: 'doughnut',
+        data: {
+            labels: chartLabels,
+            datasets: [{
+                label: 'Value (₹)',
+                data: chartValue,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.5)',
+                    'rgba(54, 162, 235, 0.5)',
+                    'rgba(255, 206, 86, 0.5)',
+                    'rgba(75, 192, 192, 0.5)',
+                    'rgba(153, 102, 255, 0.5)',
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: { responsive: true }
+    });
+</script>
+{% endblock %}

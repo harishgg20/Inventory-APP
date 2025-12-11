@@ -1,21 +1,80 @@
 {% extends 'inventory_app/base.html' %}
+{% load static %}
+
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-4">
-        <div class="card p-4">
-            <h3 class="text-center mb-3">Login</h3>
+<div class="login-split-container row g-0">
+    <!-- Left Panel: Brand & Info -->
+    <div class="col-lg-5 col-xl-4 login-left d-none d-lg-flex">
+        <div class="z-2">
+            <h1 class="display-4 fw-bold mb-4">Inventory<br>Management</h1>
+            <p class="lead mb-5 text-light opacity-75">Streamline your business with our premium inventory solution.
+                Track, manage, and analyze with ease.</p>
+
+            <ul class="feature-list">
+                <li>
+                    <div class="feature-icon">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    Real-time Stock Tracking
+                </li>
+                <li>
+                    <div class="feature-icon">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                        </svg>
+                    </div>
+                    Smart Analytics & Reporting
+                </li>
+                <li>
+                    <div class="feature-icon">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                            </path>
+                        </svg>
+                    </div>
+                    Secure & Reliable
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Right Panel: Login Form -->
+    <div class="col-lg-7 col-xl-8 login-right">
+        <div class="card p-5" style="width: 100%; max-width: 450px; border: none; box-shadow: none;">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold mb-2">Welcome Back</h2>
+                <p class="text-muted">Please enter your details to sign in</p>
+            </div>
+
             <form method="post">
                 {% csrf_token %}
-                <div class="mb-3">
-                    <label class="form-label">Username</label>
-                    <input type="text" name="username" class="form-control" autofocus>
+                {% if form.errors %}
+                <div class="alert alert-danger mb-4 rounded-3 p-3 small border-0 bg-danger-subtle text-danger">
+                    Invalid username or password.
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Password</label>
-                    <input type="password" name="password" class="form-control">
+                {% endif %}
+
+                <div class="mb-4">
+                    <label class="form-label text-uppercase small fw-bold text-muted">Username</label>
+                    <input type="text" name="username" class="form-control form-control-lg bg-light border-0"
+                        placeholder="Enter your username" autofocus required>
                 </div>
-                <button type="submit" class="btn btn-primary w-100">Sign In</button>
+                <div class="mb-5">
+                    <label class="form-label text-uppercase small fw-bold text-muted">Password</label>
+                    <input type="password" name="password" class="form-control form-control-lg bg-light border-0"
+                        placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 btn-lg shadow-sm">Sign In</button>
             </form>
+
+            <div class="mt-5 text-center text-muted small">
+                &copy; {% now "Y" %} Inventory System. All rights reserved.
+            </div>
         </div>
     </div>
 </div>

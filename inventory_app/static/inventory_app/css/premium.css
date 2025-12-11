@@ -1,7 +1,165 @@
-:root{--brand:#3466f2;--muted:#6c757d}
-body{font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
-.navbar-brand{font-weight:700;letter-spacing:.6px}
-.table-hover tbody tr:hover{transform:translateX(2px);transition:all .12s ease}
-.table-warning{background:linear-gradient(90deg,#fff7e6,#fff3d6)}
-.btn-success{background:linear-gradient(180deg,#00b894,#00a07a);border:none}
-.card{border-radius:14px;box-shadow:0 6px 20px rgba(22,28,37,.06)}
+:root {
+    /* Brand Colors - Deep Blue & Vibrant Accents */
+    --primary: #0f172a;
+    /* Slate 900 */
+    --primary-light: #1e293b;
+    /* Slate 800 */
+    --accent: #3b82f6;
+    /* Blue 500 */
+    --accent-glow: rgba(59, 130, 246, 0.5);
+    --success: #10b981;
+    /* Emerald 500 */
+    --text-main: #f8fafc;
+    /* Slate 50 */
+    --text-muted: #94a3b8;
+    /* Slate 400 */
+    --bg-body: #f1f5f9;
+    /* Slate 100 */
+    --card-bg: #ffffff;
+    --border-color: #e2e8f0;
+
+    /* Gradients */
+    --gradient-brand: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    --gradient-accent: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    --gradient-overlay: linear-gradient(to bottom, rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.95));
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-glow: 0 0 15px var(--accent-glow);
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-body);
+    color: var(--primary);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Typography */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: var(--primary);
+}
+
+/* Components */
+.card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-sm);
+    background: var(--card-bg);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-primary {
+    background: var(--gradient-accent);
+    border: none;
+    font-weight: 600;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    box-shadow: var(--shadow-glow);
+    transform: translateY(-1px);
+}
+
+.form-control {
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-color);
+    padding: 0.75rem 1rem;
+    transition: all 0.2s;
+}
+
+.form-control:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+/* Navbar */
+.navbar {
+    background: var(--primary) !important;
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-lg);
+}
+
+.navbar-brand {
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    font-size: 1.5rem;
+}
+
+/* Login Page Specifics */
+.login-split-container {
+    min-height: 100vh;
+    display: flex;
+    overflow: hidden;
+}
+
+.login-left {
+    background: var(--gradient-brand);
+    color: white;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 4rem;
+}
+
+.login-left::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&q=80') center/cover;
+    opacity: 0.1;
+    mix-blend-mode: overlay;
+}
+
+.login-right {
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.feature-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 2rem;
+}
+
+.feature-list li {
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.feature-icon {
+    background: rgba(255, 255, 255, 0.2);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}

@@ -6,8 +6,10 @@ redis
 django-cors-headers
 python-dotenv
 gunicorn
-gunicorn
+
 django-jazzmin
 pytest
 pytest-django
 xhtml2pdf
+whitenoise
+
